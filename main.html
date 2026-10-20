@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- ***********************************************************************************
+                   (C) Copyright 2026 by Safran Aircraft Engines
+                            All rights reserved
+
++-------------------------------------------------------------------------------+
+| Revision |    Date    |     Author     |                Issue                 |
++-------------------------------------------------------------------------------+
+|     1    | 26/09/2026 |    Dr Jazz     | Initial version (v2026a)             |
++-------------------------------------------------------------------------------+
+
+v2026a : version initiale
+
+Every text of this page comes from resources/messages_en.json (data-text-* attributes).
+************************************************************************************ -->
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+
+	<!-- Frameworks -->
+	<script src="lib/jquery/jquery-3.7.1.min.js"></script>
+	<script src="lib/xlsx-0.20.3/xlsx.full.min.js"></script>
+
+	<link rel="stylesheet" href="../ELM_sharedLib/bootstrap/5.3.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../ELM_sharedLib/bootstrap-icons/1.13.1/bootstrap-icons.min.css">
+
+	<script src="../ELM_sharedLib/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Internal Tools -->
+	<script src="js/ERM_config.js"></script>
+	<script src="js/OSLC_NameSpace.js"></script>
+	<script src="js/ERM_utils.js"></script>
+	<script src="js/ERM_messages.js"></script>
+	<script src="js/ERM_rest.js"></script>
+	<script src="js/ERM_report.js"></script>
+	<script src="js/ERM_uri.js"></script>
+	<script src="js/ERM_module.js"></script>
+	<script src="js/ERM_excel.js"></script>
+	<script src="js/ERM_query.js"></script>
+	<script src="js/ERM_structure.js"></script>
+	<script src="js/ERM_rebind.js"></script>
+	<script src="js/ERM_gui.js"></script>
+	<script src="js/main.js"></script>
+
+	<link rel="icon" type="image/png" href="resources/attach_file.png" />
+	<link rel="stylesheet" href="css/ERM_view.css" />
+
+	<title>ERM Module Rebind</title>
+</head>
+
+<body>
+	<!-- Shown only if resources/messages_en.json cannot be loaded (see js/main.js) -->
+	<div id="fatal" class="elm-fatal d-none" role="alert"></div>
+
+	<main id="widget" class="elm-widget d-none" aria-labelledby="widgetTitle">
+		<header class="elm-header">
+			<div>
+				<p class="elm-kicker" data-text-key="header.kicker"></p>
+				<h1 id="widgetTitle" data-text-key="header.title"></h1>
+			</div>
+		</header>
+
+		<!-- 01 / Module -->
+		<section id="mod_" class="elm-panel" aria-labelledby="mod_title">
+			<div class="elm-panel-heading">
+				<div>
+					<p class="elm-section-label" data-text-key="panel.module.label"></p>
+					<h2 id="mod_title" data-text-key="panel.module.title"></h2>
+				</div>
+				<button id="mod_help" class="elm-help" type="button" data-help-key="panel.module"
+					data-text-aria-label-key="help.button"><i class="bi bi-question-lg" aria-hidden="true"></i></button>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label elm-label" for="mod_uri" data-text-key="field.moduleUri.label"></label>
+				<input id="mod_uri" class="form-control elm-input" type="text" autocomplete="off" spellcheck="false"
+					aria-describedby="mod_uriFeedback" data-text-placeholder-key="field.moduleUri.placeholder" />
+				<div id="mod_uriFeedback" class="invalid-feedback"></div>
+			</div>
+
+			<div>
+				<label class="form-label elm-label" for="mod_projectId" data-text-key="field.projectId.label"></label>
+				<div class="elm-inline-field">
+					<input id="mod_projectId" class="form-control elm-input" type="text" readonly tabindex="-1"
+						data-text-placeholder-key="field.projectId.placeholder" />
+					<span id="mod_spinner" class="spinner-border spinner-border-sm text-secondary d-none" role="status">
+						<span class="visually-hidden" data-text-key="field.projectId.loading"></span>
+					</span>
+				</div>
+				<p id="mod_projectName" class="elm-muted elm-field-note"></p>
+			</div>
+		</section>
+
+		<!-- 02 / Excel file -->
+		<section id="xls_" class="elm-panel" aria-labelledby="xls_title">
+			<div class="elm-panel-heading">
+				<div>
+					<p class="elm-section-label" data-text-key="panel.excel.label"></p>
+					<h2 id="xls_title" data-text-key="panel.excel.title"></h2>
+				</div>
+				<button id="xls_help" class="elm-help" type="button" data-help-key="panel.excel"
+					data-text-aria-label-key="help.button"><i class="bi bi-question-lg" aria-hidden="true"></i></button>
+			</div>
+
+			<label class="form-label elm-label" for="xls_file" data-text-key="field.excelFile.label"></label>
+			<input id="xls_file" class="form-control elm-input" type="file"
+				accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+			<p id="xls_status" class="elm-muted elm-field-note"></p>
+		</section>
+
+		<!-- 03 / Rebind -->
+		<section id="rbd_" class="elm-panel" aria-labelledby="rbd_title">
+			<div class="elm-panel-heading">
+				<div>
+					<p class="elm-section-label" data-text-key="panel.rebind.label"></p>
+					<h2 id="rbd_title" data-text-key="panel.rebind.title"></h2>
+				</div>
+				<button id="rbd_help" class="elm-help" type="button" data-help-key="panel.rebind"
+					data-text-aria-label-key="help.button"><i class="bi bi-question-lg" aria-hidden="true"></i></button>
+			</div>
+
+			<div class="form-check form-switch elm-switch">
+				<input id="rbd_simulation" class="form-check-input" type="checkbox" role="switch" checked />
+				<label class="form-check-label" for="rbd_simulation">
+					<span data-text-key="field.simulation.label"></span>
+					<span id="rbd_simulationState" class="elm-switch-state"></span>
+				</label>
+			</div>
+
+			<div id="rbd_liveBanner" class="elm-live-banner d-none" role="alert">
+				<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+				<span data-text-key="live.banner"></span>
+			</div>
+
+			<div class="elm-actions">
+				<button id="rbd_rebind" class="btn btn-primary elm-rebind" type="button" disabled></button>
+			</div>
+
+			<div id="rbd_progress" class="elm-progress d-none" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+				aria-labelledby="rbd_progressLabel">
+				<div class="progress">
+					<div id="rbd_progressBar" class="progress-bar" style="width: 0%"></div>
+				</div>
+				<p id="rbd_progressLabel" class="elm-muted"></p>
+			</div>
+		</section>
+
+		<!-- 04 / Report -->
+		<section id="rpt_" class="elm-panel" aria-labelledby="rpt_title">
+			<div class="elm-panel-heading">
+				<div>
+					<p class="elm-section-label" data-text-key="panel.report.label"></p>
+					<h2 id="rpt_title" data-text-key="panel.report.title"></h2>
+				</div>
+				<button id="rpt_help" class="elm-help" type="button" data-help-key="panel.report"
+					data-text-aria-label-key="help.button"><i class="bi bi-question-lg" aria-hidden="true"></i></button>
+			</div>
+
+			<div id="rpt_messages" class="elm-report" aria-live="polite"></div>
+
+			<div class="elm-actions">
+				<button id="rpt_checkStatus" class="btn btn-outline-secondary d-none" type="button"
+					data-text-key="button.checkStatus"></button>
+			</div>
+		</section>
+
+		<!-- Confirmation before writing (real execution only) -->
+		<div class="modal fade" id="cfm_modal" tabindex="-1" aria-labelledby="cfm_title" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h2 class="modal-title fs-5" id="cfm_title" data-text-key="confirm.title"></h2>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							data-text-aria-label-key="confirm.close"></button>
+					</div>
+					<div class="modal-body">
+						<p data-text-key="confirm.intro"></p>
+						<dl class="elm-confirm-list">
+							<dt data-text-key="confirm.module"></dt>
+							<dd id="cfm_module"></dd>
+							<dt data-text-key="confirm.project"></dt>
+							<dd id="cfm_project"></dd>
+							<dt data-text-key="confirm.count"></dt>
+							<dd id="cfm_count"></dd>
+							<dt data-text-key="confirm.anchors"></dt>
+							<dd id="cfm_anchors"></dd>
+							<dt data-text-key="confirm.changeset"></dt>
+							<dd id="cfm_changeset" class="elm-break"></dd>
+						</dl>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+							data-text-key="confirm.cancel"></button>
+						<button id="cfm_confirm" type="button" class="btn btn-danger" data-text-key="confirm.rebind"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<footer id="ftr_text" class="elm-footer"></footer>
+	</main>
+</body>
+
+</html>
